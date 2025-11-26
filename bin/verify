@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+# Verify system requirements for the Rails API template
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+REQUIRED_RUBY_VERSION="3.2.2"
+ERRORS=0
+WARNINGS=0
+
+echo "================================================"
+echo "  Rails API Template - Requirements Verification"
+echo "================================================"
+echo ""
+
+# Function to print success message
+print_success() {
+  echo -e "${GREEN}✓${NC} $1"
+}
+
+# Function to print error message
+print_error() {
+  echo -e "${RED}✗${NC} $1"
+  ((ERRORS++))
+}
+
+# Function to print warning message
+print_warning() {
+  echo -e "${YELLOW}⚠${NC} $1"
+  ((WARNINGS++))
+}
+
+# Check Ruby installation
+echo "Checking Ruby installation..."
+if command -v ruby &> /dev/null; then
+  RUBY_VERSION=$(ruby -v | awk '{print $2}' | cut -d'p' -f1)
+  if [ "$RUBY_VERSION" == "$REQUIRED_RUBY_VERSION" ]; then
+    print_success "Ruby $RUBY_VERSION is installed (required: $REQUIRED_RUBY_VERSION)"
+  else
+    print_error "Ruby $RUBY_VERSION is installed, but version $REQUIRED_RUBY_VERSION is required"
+    echo "  Install Ruby $REQUIRED_RUBY_VERSION using:"
+    echo "    - rbenv: rbenv install $REQUIRED_RUBY_VERSION && rbenv global $REQUIRED_RUBY_VERSION"
+    echo "    - rvm: rvm install $REQUIRED_RUBY_VERSION && rvm use $REQUIRED_RUBY_VERSION --default"
+  fi
+else
+  print_error "Ruby is not installed"
+  echo "  Install Ruby using rbenv or rvm:"
+  echo "    - rbenv: https://github.com/rbenv/rbenv"
+  echo "    - rvm: https://rvm.io/"
+fi
+
+echo ""
+
+# Check Bundler installation
+echo "Checking Bundler installation..."
+if command -v bundle &> /dev/null; then
+  BUNDLER_VERSION=$(bundle -v | awk '{print $3}')
+  print_success "Bundler $BUNDLER_VERSION is installed"
+else
+  print_error "Bundler is not installed"
+  echo "  Install Bundler with: gem install bundler"
+fi
+
+echo ""
+
+# Check Docker installation
+echo "Checking Docker installation..."
+if command -v docker &> /dev/null; then
+  DOCKER_VERSION=$(docker --version | awk '{print $3}' | sed 's/,//')
+  print_success "Docker $DOCKER_VERSION is installed"
+
+  # Check if Docker daemon is running
+  if docker info &> /dev/null; then
+    print_success "Docker daemon is running"
+  else
+    print_warning "Docker is installed but the daemon is not running"
+    echo "  Start Docker Desktop or run: sudo systemctl start docker"
+  fi
+else
+  print_warning "Docker is not installed (optional, but recommended)"
+  echo "  Install Docker from: https://docs.docker.com/get-docker/"
+fi
+
+echo ""
+
+# Check Docker Compose installation
+echo "Checking Docker Compose installation..."
+if command -v docker-compose &> /dev/null; then
+  COMPOSE_VERSION=$(docker-compose --version | awk '{print $4}' | sed 's/,//')
+  print_success "Docker Compose $COMPOSE_VERSION is installed"
+elif docker compose version &> /dev/null 2>&1; then
+  COMPOSE_VERSION=$(docker compose version --short)
+  print_success "Docker Compose $COMPOSE_VERSION is installed (plugin)"
+else
+  print_warning "Docker Compose is not installed (optional, but recommended)"
+  echo "  Install Docker Compose from: https://docs.docker.com/compose/install/"
+fi
+
+echo ""
+
+# Check PostgreSQL installation (optional)
+echo "Checking PostgreSQL installation..."
+if command -v psql &> /dev/null; then
+  POSTGRES_VERSION=$(psql --version | awk '{print $3}')
+  print_success "PostgreSQL $POSTGRES_VERSION is installed"
+else
+  print_warning "PostgreSQL is not installed locally (optional if using Docker)"
+  echo "  You can use Docker for PostgreSQL or install it:"
+  echo "    - macOS: brew install postgresql@16"
+  echo "    - Ubuntu: sudo apt-get install postgresql-16"
+fi
+
+echo ""
+echo "================================================"
+echo "  Summary"
+echo "================================================"
+
+if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
+  echo -e "${GREEN}All requirements are met!${NC}"
+  echo ""
+  echo "Next steps:"
+  echo "  1. Run: docker-compose up -d"
+  echo "  2. Run: bundle install"
+  echo "  3. Run: rails db:setup"
+  echo "  4. Run: rails server"
+  exit 0
+elif [ $ERRORS -eq 0 ]; then
+  echo -e "${YELLOW}All critical requirements are met, but there are $WARNINGS warning(s).${NC}"
+  echo ""
+  echo "You can proceed with setup, but some features may not be available."
+  echo ""
+  echo "Next steps:"
+  echo "  1. Run: bundle install"
+  echo "  2. Setup database (with Docker or local PostgreSQL)"
+  echo "  3. Run: rails db:setup"
+  echo "  4. Run: rails server"
+  exit 0
+else
+  echo -e "${RED}Found $ERRORS critical error(s) and $WARNINGS warning(s).${NC}"
+  echo ""
+  echo "Please resolve the errors above before proceeding with setup."
+  exit 1
+fi
