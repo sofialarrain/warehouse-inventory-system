@@ -6,16 +6,6 @@ class Api::InventoryMovementsController < ApplicationController
         render_success(data: @inventory_movements)
     end
 
-    def show_by_warehouse
-        @inventory_movements = InventoryMovement.where(warehouse_id: params[:warehouse_id])
-        render_success(data: @inventory_movements)
-    end
-
-    def show_by_product
-        @inventory_movements = InventoryMovement.where(product_id: params[:product_id])
-        render_success(data: @inventory_movements)
-    end
-
     def register_entry
         stock = Stock.find_or_initialize_by(
             warehouse_id: params[:warehouse_id],

@@ -7,6 +7,7 @@ class Api::ProductsController < ApplicationController
     end
     
     def show
+        @product = Product.find(params[:id])
         render_success(data: @product)
     end
 

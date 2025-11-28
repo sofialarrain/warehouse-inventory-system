@@ -7,6 +7,7 @@ class Api::WarehousesController < ApplicationController
     end
 
     def show
+        @warehouse = Warehouse.find(params[:id])
         render_success(data: @warehouse)
     end
 
