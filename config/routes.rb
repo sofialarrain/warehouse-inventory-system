@@ -14,6 +14,10 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   namespace :api do
     resources :warehouses
+    post "warehouses/assign_manager/:id", to: "warehouses#assign_manager"
+    post "warehouses/unassign_manager/:id", to: "warehouses#unassign_manager"
+    post "warehouses/assign_worker/:id", to: "warehouses#assign_worker"
+    post "warehouses/unassign_worker/:id", to: "warehouses#unassign_worker"
     resources :products
     resources :stocks, only: [ :index, :show ]
     get "stocks/by_warehouse/:warehouse_id", to: "stocks#by_warehouse"
