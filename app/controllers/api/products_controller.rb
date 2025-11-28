@@ -5,7 +5,7 @@ class Api::ProductsController < ApplicationController
         @products = Product.all
         render_success(data: @products)
     end
-    
+
     def show
         @product = Product.find(params[:id])
         render_success(data: @product)
@@ -27,7 +27,7 @@ class Api::ProductsController < ApplicationController
             render_error(errors: @product.errors.full_messages)
         end
     end
-    
+
     def destroy
         if @product.destroy
             render_success(message: "Product deleted successfully")

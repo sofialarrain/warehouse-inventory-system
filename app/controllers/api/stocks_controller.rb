@@ -5,7 +5,7 @@ class Api::StocksController < ApplicationController
         @stocks = Stock.all
         render_success(data: @stocks)
     end
-    
+
     def show
         @stock = Stock.find(params[:id])
         render_success(data: @stock)
