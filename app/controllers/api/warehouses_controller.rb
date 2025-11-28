@@ -40,14 +40,14 @@ class Api::WarehousesController < ApplicationController
     def assign_manager
         @warehouse = Warehouse.find(params[:id])
         @manager = User.find(params[:manager_id])
-        @warehouse.manager << @manager
+        @warehouse.update(manager: @manager)
         render_success(data: @warehouse)
     end
 
     def unassign_manager
         @warehouse = Warehouse.find(params[:id])
         @manager = User.find(params[:manager_id])
-        @warehouse.manager.delete(@manager)
+        @warehouse.update(manager: nil)
         render_success(data: @warehouse)
     end
 
