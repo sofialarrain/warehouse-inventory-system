@@ -16,11 +16,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_144229) do
 
   create_table "inventory_movements", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "destination_warehouse_id", null: false
+    t.bigint "destination_warehouse_id"
     t.integer "movement_type"
     t.bigint "product_id", null: false
     t.integer "quantity"
-    t.bigint "source_warehouse_id", null: false
+    t.bigint "source_warehouse_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["destination_warehouse_id"], name: "index_inventory_movements_on_destination_warehouse_id"

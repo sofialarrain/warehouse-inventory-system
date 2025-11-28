@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Api::WarehousesControllers", type: :request do
   let(:plant_manager) do
-    User.create!(
+    User.find_or_create_by!(
       email: "pm@test.com",
       password: "password123",
       full_name: "Plant Manager",
@@ -11,7 +11,7 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
   end
 
   let(:manager) do
-    User.create!(
+    User.find_or_create_by!(
       email: "manager@test.com",
       password: "password123",
       full_name: "Manager",
@@ -20,7 +20,7 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
   end
 
   let(:worker) do
-    User.create!(
+    User.find_or_create_by!(
       email: "worker@test.com",
       password: "password123",
       full_name: "Worker",

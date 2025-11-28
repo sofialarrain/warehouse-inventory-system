@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Api::InventoryMovementsControllers", type: :request do
   let(:plant_manager) do
-    User.create!(
+    User.find_or_create_by!(
       email: "pm@test.com",
       password: "password123",
       full_name: "Plant Manager",
@@ -11,14 +11,14 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
   end
 
   let(:warehouse) do
-    Warehouse.create!(
+    Warehouse.find_or_create_by!(
       name: "Test Warehouse",
       location: "Test Location"
     )
   end
 
   let(:product) do
-    Product.create!(
+    Product.find_or_create_by!(
       name: "Test Product",
       description: "Test Description",
       sku: "SKU001"

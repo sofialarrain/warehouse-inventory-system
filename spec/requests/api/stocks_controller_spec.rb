@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "Api::StocksControllers", type: :request do
   let(:plant_manager) do
-    User.create!(
+    User.find_or_create_by!(
       email: "pm@test.com",
       password: "password123",
       full_name: "Plant Manager",
