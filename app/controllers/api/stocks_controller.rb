@@ -2,12 +2,11 @@ class Api::StocksController < ApplicationController
     before_action :set_stock, only: [ :show, :update, :destroy ]
 
     def index
-        @stocks = Stock.all
+        @stocks = Stock.page(params[:page]).per(10)
         render_success(data: @stocks)
     end
 
     def show
-        @stock = Stock.find(params[:id])
         render_success(data: @stock)
     end
 
@@ -19,5 +18,15 @@ class Api::StocksController < ApplicationController
     def by_product
         @stocks = Stock.where(product_id: params[:product_id])
         render_success(data: @stocks)
+    end
+
+    private
+
+    def set_stock
+        @stock = Stock.find(params[:id])
+    end
+
+    def stock_params
+        params.require(:stock).permit(:quantity)
     end
 end

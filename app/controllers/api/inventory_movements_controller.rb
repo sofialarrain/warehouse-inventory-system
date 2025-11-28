@@ -2,7 +2,7 @@ class Api::InventoryMovementsController < ApplicationController
     before_action :set_inventory_movement, only: [ :show, :update, :destroy ]
 
     def index
-        @inventory_movements = InventoryMovement.all
+        @inventory_movements = InventoryMovement.page(params[:page]).per(10)
         render_success(data: @inventory_movements)
     end
 
@@ -62,6 +62,14 @@ class Api::InventoryMovementsController < ApplicationController
     end
 
     private
+
+    def set_inventory_movement
+        @inventory_movement = InventoryMovement.find(params[:id])
+    end
+
+    def inventory_movement_params
+        params.require(:inventory_movement).permit(:quantity, :movement_type, :source_warehouse_id, :destination_warehouse_id)
+    end
 
     def create_movement(movement_type:, source_warehouse_id: nil, destination_warehouse_id: nil)
         @inventory_movement = InventoryMovement.new(

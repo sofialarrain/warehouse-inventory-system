@@ -2,12 +2,11 @@ class Api::ProductsController < ApplicationController
     before_action :set_product, only: [ :show, :update, :destroy ]
 
     def index
-        @products = Product.all
+        @products = Product.page(params[:page]).per(10)
         render_success(data: @products)
     end
 
     def show
-        @product = Product.find(params[:id])
         render_success(data: @product)
     end
 
@@ -34,5 +33,15 @@ class Api::ProductsController < ApplicationController
         else
             render_error(errors: @product.errors.full_messages)
         end
+    end
+
+    private
+
+    def set_product
+        @product = Product.find(params[:id])
+    end
+
+    def product_params
+        params.require(:product).permit(:name, :description, :sku)
     end
 end
