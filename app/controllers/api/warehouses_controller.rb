@@ -36,4 +36,32 @@ class Api::WarehousesController < ApplicationController
             render_error(errors: @warehouse.errors.full_messages)
         end
     end
+
+    def assign_manager
+        @warehouse = Warehouse.find(params[:id])
+        @manager = User.find(params[:manager_id])
+        @warehouse.manager << @manager
+        render_success(data: @warehouse)
+    end
+
+    def unassign_manager
+        @warehouse = Warehouse.find(params[:id])
+        @manager = User.find(params[:manager_id])
+        @warehouse.manager.delete(@manager)
+        render_success(data: @warehouse)
+    end
+
+    def assign_worker
+        @warehouse = Warehouse.find(params[:id])
+        @worker = User.find(params[:worker_id])
+        @warehouse.workers << @worker
+        render_success(data: @warehouse)
+    end
+
+    def unassign_worker
+        @warehouse = Warehouse.find(params[:id])
+        @worker = User.find(params[:worker_id])
+        @warehouse.workers.delete(@worker)
+        render_success(data: @warehouse)
+    end
 end
