@@ -37,13 +37,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_144229) do
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
-  create_table "posts", force: :cascade do |t|
-    t.text "content"
-    t.datetime "created_at", null: false
-    t.string "title"
-    t.datetime "updated_at", null: false
-  end
-
   create_table "products", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "description"
@@ -59,6 +52,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_144229) do
     t.datetime "updated_at", null: false
     t.bigint "warehouse_id", null: false
     t.index ["product_id"], name: "index_stocks_on_product_id"
+    t.index ["warehouse_id", "product_id"], name: "index_stocks_on_warehouse_id_and_product_id", unique: true
     t.index ["warehouse_id"], name: "index_stocks_on_warehouse_id"
   end
 
@@ -81,6 +75,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_144229) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "warehouse_id", null: false
+    t.index ["user_id", "warehouse_id"], name: "index_warehouse_assignments_on_user_id_and_warehouse_id", unique: true
     t.index ["user_id"], name: "index_warehouse_assignments_on_user_id"
     t.index ["warehouse_id"], name: "index_warehouse_assignments_on_warehouse_id"
   end
@@ -88,7 +83,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_28_144229) do
   create_table "warehouses", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "location"
-    t.bigint "manager_id", null: false
+    t.bigint "manager_id"
     t.string "name"
     t.datetime "updated_at", null: false
     t.index ["manager_id"], name: "index_warehouses_on_manager_id"
