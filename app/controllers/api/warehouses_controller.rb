@@ -74,7 +74,7 @@ class Api::WarehousesController < ApplicationController
 
     def require_plant_manager
         unless current_user&.plant_manager?
-            render_error(errors: "You are not authorized to access this resource")
+            render_error(errors: ["You are not authorized to access this resource"])
         end
     end
 end
