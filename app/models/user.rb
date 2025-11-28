@@ -8,4 +8,8 @@ class User < ApplicationRecord
   enum :role, { warehouse_worker: 0, manager: 1, plant_manager: 2 }
 
   validates :full_name, presence: true
+
+  has_many :managed_warehouses, class_name: 'Warehouse', foreign_key: 'manager_id'
+  has_many :warehouse_assignments 
+  has_many :assigned_warehouses, through: :warehouse_assignments, source: :warehouse
 end
