@@ -1,4 +1,5 @@
 class Api::InventoryMovementsController < ApplicationController
+    before_action :authenticate_user!
     before_action :set_inventory_movement, only: [ :show, :update, :destroy ]
 
     def index
@@ -35,13 +36,20 @@ class Api::InventoryMovementsController < ApplicationController
             warehouse_id: params[:warehouse_id],
             product_id: params[:product_id]
         )
+
+        if stock.nil?
+            render_error(errors: ["Stock not found"])
+            return
+        end
+        if stock.quantity < params[:quantity]
+            render_error(errors: ["Insufficient stock"])
+            return
+        end
+
         stock.quantity = stock.quantity - params[:quantity]
         stock.save
 
-        create_movement(
-            movement_type: :exit,
-            source_warehouse_id: params[:warehouse_id]
-        )
+        create_movement(movement_type: :exit, source_warehouse_id: params[:warehouse_id])
     end
 
     def register_transfer
@@ -59,6 +67,16 @@ class Api::InventoryMovementsController < ApplicationController
             warehouse_id: params[:source_warehouse_id],
             product_id: params[:product_id]
         )
+
+        if source_stock.nil?
+            render_error(errors: ["Stock not found"])
+            return
+        end
+        if source_stock.quantity < params[:quantity]
+            render_error(errors: ["Insufficient stock"])
+            return
+        end
+
         source_stock.quantity = source_stock.quantity - params[:quantity]
         source_stock.save
 
@@ -66,7 +84,7 @@ class Api::InventoryMovementsController < ApplicationController
             warehouse_id: params[:destination_warehouse_id],
             product_id: params[:product_id]
         )
-        destination_stock.quantity = (destination_stock.quantity || 0) + params[:quantity]
+        destination_stock.quantity = destination_stock.quantity + params[:quantity]
         destination_stock.save
 
         create_movement(
@@ -119,7 +137,9 @@ class Api::InventoryMovementsController < ApplicationController
         end
 
         if current_user&.warehouse_worker?
-            return current_user.assigned_warehouses.include?(warehouse_id)
+            warehouse = Warehouse.find(id:warehouse_id)
+            return false unless warehouse
+            return current_user.assigned_warehouses.include?(warehouse)
         end
 
         return false

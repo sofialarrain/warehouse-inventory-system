@@ -1,4 +1,5 @@
 class Api::WarehousesController < ApplicationController
+    before_action :authenticate_user!
     before_action :set_warehouse, only: [ :show, :update, :destroy, :assign_manager, :unassign_manager, :assign_worker, :unassign_worker ]
     before_action :require_plant_manager, only: [ :create, :update, :destroy, :assign_manager, :unassign_manager, :assign_worker, :unassign_worker ]
 
@@ -72,7 +73,7 @@ class Api::WarehousesController < ApplicationController
     end
 
     def require_plant_manager
-        unless current_user.role == "plant_manager"
+        unless current_user&.plant_manager?
             render_error(errors: "You are not authorized to access this resource")
         end
     end
