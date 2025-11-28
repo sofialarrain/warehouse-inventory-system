@@ -8,7 +8,8 @@ class Api::InventoryMovementsController < ApplicationController
 
     def register_entry
         unless check_warehouse_access(params[:warehouse_id])
-            render_error(errors: "You are not authorized to access this resource")
+            render_error(errors: ["You are not authorized to access this resource"])
+            return
         end
 
         stock = Stock.find_or_initialize_by(
@@ -26,7 +27,8 @@ class Api::InventoryMovementsController < ApplicationController
 
     def register_exit
         unless check_warehouse_access(params[:warehouse_id])
-            render_error(errors: "You are not authorized to access this resource")
+            render_error(errors: ["You are not authorized to access this resource"])
+            return
         end
 
         stock = Stock.find_by(
@@ -44,11 +46,13 @@ class Api::InventoryMovementsController < ApplicationController
 
     def register_transfer
         unless check_warehouse_access(params[:source_warehouse_id])
-            render_error(errors: "You are not authorized to access this resource")
+            render_error(errors: ["You are not authorized to access this resource"])
+            return
         end
 
         unless check_warehouse_access(params[:destination_warehouse_id])
-            render_error(errors: "You are not authorized to access this resource")
+            render_error(errors: ["You are not authorized to access this resource"])
+            return
         end
 
         source_stock = Stock.find_by(
@@ -74,7 +78,8 @@ class Api::InventoryMovementsController < ApplicationController
 
     def movement_history
         @inventory_movements = InventoryMovement.where(product_id: params[:product_id])
-        render_success(data: @inventory_movements)
+        @inventory_movements_paginated = @inventory_movements.page(params[:page]).per(10)
+        render_success(data: @inventory_movements_paginated)
     end
 
     private
@@ -105,12 +110,16 @@ class Api::InventoryMovementsController < ApplicationController
     end
 
     def check_warehouse_access(warehouse_id)
-        if current_user.role == "plant_manager"
+        if current_user&.plant_manager?
             return true
         end
 
-        if current_user.role == "manager" or current_user.role == "warehouse_worker"
-            return current_user.managed_warehouses.include?(warehouse_id)
+        if current_user&.manager?
+            return current_user.managed_warehouses.exists?(id: warehouse_id)
+        end
+
+        if current_user&.warehouse_worker?
+            return current_user.assigned_warehouses.include?(warehouse_id)
         end
 
         return false

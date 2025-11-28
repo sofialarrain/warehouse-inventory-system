@@ -12,12 +12,14 @@ class Api::StocksController < ApplicationController
 
     def by_warehouse
         @stocks = Stock.where(warehouse_id: params[:warehouse_id])
-        render_success(data: @stocks)
+        @stocks_paginated = @stocks.page(params[:page]).per(10)
+        render_success(data: @stocks_paginated)
     end
 
     def by_product
         @stocks = Stock.where(product_id: params[:product_id])
-        render_success(data: @stocks)
+        @stocks_paginated = @stocks.page(params[:page]).per(10)
+        render_success(data: @stocks_paginated)
     end
 
     private
