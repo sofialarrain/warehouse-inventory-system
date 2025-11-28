@@ -6,5 +6,8 @@ class CreateWarehouseAssignments < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
+    
+    add_index :warehouse_assignments, [:user_id, :warehouse_id], unique: true
   end
 end
+

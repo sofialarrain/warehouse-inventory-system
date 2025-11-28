@@ -1,5 +1,4 @@
 class Product < ApplicationRecord
-    belongs_to :user
     has_many :stocks
     has_many :warehouses, through: :stocks
     has_many :inventory_movements

@@ -7,6 +7,10 @@ class Api::InventoryMovementsController < ApplicationController
     end
 
     def register_entry
+        unless check_warehouse_access(params[:warehouse_id])
+            render_error(errors: "You are not authorized to access this resource")
+        end
+
         stock = Stock.find_or_initialize_by(
             warehouse_id: params[:warehouse_id],
             product_id: params[:product_id]
@@ -21,6 +25,10 @@ class Api::InventoryMovementsController < ApplicationController
     end
 
     def register_exit
+        unless check_warehouse_access(params[:warehouse_id])
+            render_error(errors: "You are not authorized to access this resource")
+        end
+
         stock = Stock.find_by(
             warehouse_id: params[:warehouse_id],
             product_id: params[:product_id]
@@ -35,6 +43,14 @@ class Api::InventoryMovementsController < ApplicationController
     end
 
     def register_transfer
+        unless check_warehouse_access(params[:source_warehouse_id])
+            render_error(errors: "You are not authorized to access this resource")
+        end
+
+        unless check_warehouse_access(params[:destination_warehouse_id])
+            render_error(errors: "You are not authorized to access this resource")
+        end
+
         source_stock = Stock.find_by(
             warehouse_id: params[:source_warehouse_id],
             product_id: params[:product_id]
@@ -86,5 +102,17 @@ class Api::InventoryMovementsController < ApplicationController
         else
             render_error(errors: @inventory_movement.errors.full_messages)
         end
+    end
+
+    def check_warehouse_access(warehouse_id)
+        if current_user.role == "plant_manager"
+            return true
+        end
+
+        if current_user.role == "manager" or current_user.role == "warehouse_worker"
+            return current_user.managed_warehouses.include?(warehouse_id)
+        end
+
+        return false
     end
 end

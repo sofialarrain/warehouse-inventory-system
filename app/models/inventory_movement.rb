@@ -9,7 +9,7 @@ class InventoryMovement < ApplicationRecord
     validates :quantity, numericality: { greater_than: 0 }
     validates :movement_type, presence: true
     validates :product_id, presence: true
-    validates :source_warehouse_id, presence: true
-    validates :destination_warehouse_id, presence: true
     validates :user_id, presence: true
+    validates :source_warehouse_id, presence: true, if: -> { exit? || transfer? }
+    validates :destination_warehouse_id, presence: true, if: -> { entry? || transfer? }
 end
