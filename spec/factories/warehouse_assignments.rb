@@ -4,4 +4,3 @@ FactoryBot.define do
     association :warehouse
   end
 end
-

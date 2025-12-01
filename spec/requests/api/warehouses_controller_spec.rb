@@ -10,9 +10,9 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns a success response" do
       get "/api/warehouses", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
@@ -21,9 +21,9 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns paginated results" do
       get "/api/warehouses", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)
@@ -39,7 +39,7 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(warehouse.name)
     end
-    
+
     it "returns a not found response" do
       get "/api/warehouses/999999", headers: auth_headers(user)
       expect(response).to have_http_status(:not_found)
@@ -88,7 +88,7 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("Warehouse deleted successfully")
     end
-    
+
     it "returns a not found response" do
       delete "/api/warehouses/999999", headers: auth_headers(user)
       expect(response).to have_http_status(:not_found)
@@ -102,20 +102,20 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns a success response" do
       post "/api/warehouses/assign_manager/#{warehouse.id}", params: { manager_id: manager.id }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
-      
+
       warehouse.reload
       expect(warehouse.manager_id).to eq(manager.id)
     end
 
     it "returns a not found response when manager does not exist" do
       post "/api/warehouses/assign_manager/#{warehouse.id}", params: { manager_id: 999999 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -127,19 +127,19 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns a success response" do
       post "/api/warehouses/unassign_manager/#{warehouse.id}", params: { manager_id: manager.id }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
-      
+
       warehouse.reload
       expect(warehouse.manager_id).to be_nil
     end
 
     it "returns a not found response when manager does not exist" do
       post "/api/warehouses/unassign_manager/#{warehouse.id}", params: { manager_id: 999999 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -151,19 +151,19 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns a success response" do
       post "/api/warehouses/assign_worker/#{warehouse.id}", params: { worker_id: worker.id }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
-      
+
       warehouse.reload
       expect(warehouse.workers).to include(worker)
     end
 
     it "returns a not found response when worker does not exist" do
       post "/api/warehouses/assign_worker/#{warehouse.id}", params: { worker_id: 999999 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -179,21 +179,20 @@ RSpec.describe "Api::WarehousesControllers", type: :request do
 
     it "returns a success response" do
       post "/api/warehouses/unassign_worker/#{warehouse.id}", params: { worker_id: worker.id }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
-      
+
       warehouse.reload
       expect(warehouse.workers).not_to include(worker)
     end
 
     it "returns a not found response when worker does not exist" do
       post "/api/warehouses/unassign_worker/#{warehouse.id}", params: { worker_id: 999999 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
 end
-

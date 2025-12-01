@@ -7,8 +7,7 @@ class CreateStocks < ActiveRecord::Migration[8.1]
 
       t.timestamps
     end
-    
-    add_index :stocks, [:warehouse_id, :product_id], unique: true
+
+    add_index :stocks, [ :warehouse_id, :product_id ], unique: true
   end
 end
-

@@ -12,9 +12,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns a success response" do
       get "/api/stocks", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
@@ -23,9 +23,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns paginated results" do
       get "/api/stocks", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)
@@ -41,7 +41,7 @@ RSpec.describe "Api::StocksControllers", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include(stock.quantity.to_s)
     end
-    
+
     it "returns a not found response" do
       get "/api/stocks/999999", headers: auth_headers(user)
       expect(response).to have_http_status(:not_found)
@@ -62,12 +62,12 @@ RSpec.describe "Api::StocksControllers", type: :request do
       create(:stock, warehouse: warehouse, product: product3, quantity: 30)
       create(:stock, warehouse: other_warehouse, product: product1, quantity: 5)
     end
-    
+
     it "returns stocks for a specific warehouse" do
       get "/api/stocks/by_warehouse/#{warehouse.id}", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(3)
@@ -75,12 +75,12 @@ RSpec.describe "Api::StocksControllers", type: :request do
         expect(stock_data['warehouse_id']).to eq(warehouse.id)
       end
     end
-    
+
     it "returns paginated results" do
       get "/api/stocks/by_warehouse/#{warehouse.id}", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)
@@ -88,9 +88,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns empty array for non-existent warehouse" do
       get "/api/stocks/by_warehouse/999999", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_an(Array)
       expect(json_response['data'].length).to eq(0)
@@ -114,9 +114,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns stocks for a specific product" do
       get "/api/stocks/by_product/#{product.id}", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(3)
@@ -127,9 +127,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns paginated results" do
       get "/api/stocks/by_product/#{product.id}", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)
@@ -137,9 +137,9 @@ RSpec.describe "Api::StocksControllers", type: :request do
 
     it "returns empty array for non-existent product" do
       get "/api/stocks/by_product/999999", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_an(Array)
       expect(json_response['data'].length).to eq(0)

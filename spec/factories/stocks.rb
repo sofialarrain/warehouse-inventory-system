@@ -5,4 +5,3 @@ FactoryBot.define do
     quantity { 100 }
   end
 end
-

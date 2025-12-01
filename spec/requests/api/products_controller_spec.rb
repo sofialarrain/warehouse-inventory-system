@@ -45,7 +45,7 @@ RSpec.describe "Api::ProductsControllers", type: :request do
     it "returns a success response" do
       post "/api/products", params: { product: { name: "Product 1", description: "Description 1", sku: "SKU1" } }, headers: auth_headers(user)
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
@@ -56,7 +56,7 @@ RSpec.describe "Api::ProductsControllers", type: :request do
     it "returns a unprocessable entity response" do
       post "/api/products", params: { product: { name: "", description: "Description 1", sku: "SKU1" } }, headers: auth_headers(user)
       expect(response).to have_http_status(:unprocessable_entity)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['errors']).to be_present
       expect(json_response['errors']).to include(match(/Name.*blank/i))
@@ -68,38 +68,38 @@ RSpec.describe "Api::ProductsControllers", type: :request do
     let(:product) { create(:product, name: "Product 1", sku: "SKU1") }
 
     it "returns a success response" do
-      put "/api/products/#{product.id}", 
+      put "/api/products/#{product.id}",
           params: { product: { name: "Updated Product", description: "Updated Description", sku: "UPDATED" } },
           headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
       expect(json_response['data']['name']).to eq("Updated Product")
       expect(json_response['data']['sku']).to eq("UPDATED")
-      
+
       product.reload
       expect(product.name).to eq("Updated Product")
     end
 
     it "returns a unprocessable entity response when validation fails" do
-      put "/api/products/#{product.id}", 
+      put "/api/products/#{product.id}",
           params: { product: { name: "", description: "Updated Description", sku: "UPDATED" } },
           headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:unprocessable_entity)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['errors']).to be_present
     end
 
     it "returns a not found response for non-existent product" do
-      put "/api/products/999999", 
+      put "/api/products/999999",
           params: { product: { name: "Updated Product" } },
           headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -110,18 +110,18 @@ RSpec.describe "Api::ProductsControllers", type: :request do
 
     it "returns a success response" do
       delete "/api/products/#{product.id}", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Product deleted successfully")
-      
+
       expect(Product.find_by(id: product.id)).to be_nil
     end
 
     it "returns a not found response for non-existent product" do
       delete "/api/products/999999", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end

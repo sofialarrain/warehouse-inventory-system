@@ -5,4 +5,3 @@ FactoryBot.define do
     description { "Description" }
   end
 end
-

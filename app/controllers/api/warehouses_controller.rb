@@ -3,8 +3,7 @@ class Api::WarehousesController < ApplicationController
     before_action :require_plant_manager, only: [ :create, :update, :destroy, :assign_manager, :unassign_manager, :assign_worker, :unassign_worker ]
 
     def index
-        per_page = params[:per] || 10
-        @warehouses = Warehouse.page(params[:page]).per(per_page)
+        @warehouses = Warehouse.page(params[:page]).per(10)
         render_success(data: @warehouses)
     end
 
@@ -74,7 +73,7 @@ class Api::WarehousesController < ApplicationController
 
     def require_plant_manager
         unless current_user&.plant_manager?
-            render_error(errors: ["You are not authorized to access this resource"])
+            render_error(errors: [ "You are not authorized to access this resource" ])
         end
     end
 end

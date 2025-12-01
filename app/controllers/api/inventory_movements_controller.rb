@@ -1,13 +1,14 @@
 class Api::InventoryMovementsController < ApplicationController
+    before_action :set_inventory_movement, only: [ :show, :update, :destroy ]
+
     def index
-        per_page = params[:per] || 10
-        @inventory_movements = InventoryMovement.page(params[:page]).per(per_page)
+        @inventory_movements = InventoryMovement.page(params[:page]).per(10)
         render_success(data: @inventory_movements)
     end
 
     def register_entry
         unless check_warehouse_access(params[:warehouse_id])
-            render_error(errors: ["You are not authorized to access this resource"])
+            render_error(errors: [ "You are not authorized to access this resource" ])
             return
         end
 
@@ -15,7 +16,7 @@ class Api::InventoryMovementsController < ApplicationController
             warehouse_id: params[:warehouse_id],
             product_id: params[:product_id]
         )
-        stock.quantity = (stock.quantity || 0) + params[:quantity].to_i
+        stock.quantity = (stock.quantity || 0) + params[:quantity]
         stock.save
 
         create_movement(
@@ -26,7 +27,7 @@ class Api::InventoryMovementsController < ApplicationController
 
     def register_exit
         unless check_warehouse_access(params[:warehouse_id])
-            render_error(errors: ["You are not authorized to access this resource"])
+            render_error(errors: [ "You are not authorized to access this resource" ])
             return
         end
 
@@ -36,15 +37,15 @@ class Api::InventoryMovementsController < ApplicationController
         )
 
         if stock.nil?
-            render_error(errors: ["Stock not found"])
+            render_error(errors: [ "Stock not found" ])
             return
         end
-        if stock.quantity < params[:quantity].to_i
-            render_error(errors: ["Insufficient stock"])
+        if stock.quantity < params[:quantity]
+            render_error(errors: [ "Insufficient stock" ])
             return
         end
 
-        stock.quantity = stock.quantity - params[:quantity].to_i
+        stock.quantity = stock.quantity - params[:quantity]
         stock.save
 
         create_movement(movement_type: :exit, source_warehouse_id: params[:warehouse_id])
@@ -52,12 +53,12 @@ class Api::InventoryMovementsController < ApplicationController
 
     def register_transfer
         unless check_warehouse_access(params[:source_warehouse_id])
-            render_error(errors: ["You are not authorized to access this resource"])
+            render_error(errors: [ "You are not authorized to access this resource" ])
             return
         end
 
         unless check_warehouse_access(params[:destination_warehouse_id])
-            render_error(errors: ["You are not authorized to access this resource"])
+            render_error(errors: [ "You are not authorized to access this resource" ])
             return
         end
 
@@ -67,22 +68,22 @@ class Api::InventoryMovementsController < ApplicationController
         )
 
         if source_stock.nil?
-            render_error(errors: ["Stock not found"])
+            render_error(errors: [ "Stock not found" ])
             return
         end
-        if source_stock.quantity < params[:quantity].to_i
-            render_error(errors: ["Insufficient stock"])
+        if source_stock.quantity < params[:quantity]
+            render_error(errors: [ "Insufficient stock" ])
             return
         end
 
-        source_stock.quantity = source_stock.quantity - params[:quantity].to_i
+        source_stock.quantity = source_stock.quantity - params[:quantity]
         source_stock.save
 
         destination_stock = Stock.find_or_initialize_by(
             warehouse_id: params[:destination_warehouse_id],
             product_id: params[:product_id]
         )
-        destination_stock.quantity = (destination_stock.quantity || 0) + params[:quantity].to_i
+        destination_stock.quantity = destination_stock.quantity + params[:quantity]
         destination_stock.save
 
         create_movement(
@@ -94,12 +95,15 @@ class Api::InventoryMovementsController < ApplicationController
 
     def movement_history
         @inventory_movements = InventoryMovement.where(product_id: params[:product_id])
-        per_page = params[:per] || 10
-        @inventory_movements_paginated = @inventory_movements.page(params[:page]).per(per_page)
+        @inventory_movements_paginated = @inventory_movements.page(params[:page]).per(10)
         render_success(data: @inventory_movements_paginated)
     end
 
     private
+
+    def set_inventory_movement
+        @inventory_movement = InventoryMovement.find(params[:id])
+    end
 
     def inventory_movement_params
         params.require(:inventory_movement).permit(:quantity, :movement_type, :source_warehouse_id, :destination_warehouse_id)
@@ -111,7 +115,7 @@ class Api::InventoryMovementsController < ApplicationController
             source_warehouse_id: source_warehouse_id,
             destination_warehouse_id: destination_warehouse_id,
             user: current_user,
-            quantity: params[:quantity].to_i,
+            quantity: params[:quantity],
             movement_type: movement_type
         )
 
@@ -137,6 +141,6 @@ class Api::InventoryMovementsController < ApplicationController
             return current_user.assigned_warehouses.include?(warehouse)
         end
 
-        return false
+        false
     end
 end

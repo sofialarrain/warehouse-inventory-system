@@ -13,18 +13,18 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
 
     it "returns a success response" do
       get "/api/inventory_movements", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data'].length).to eq(5)
     end
 
     it "returns paginated results" do
       get "/api/inventory_movements", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)
@@ -39,16 +39,16 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       let(:user) { create(:user, :plant_manager) }
 
       it "creates a new stock entry and inventory movement" do
-        post "/api/inventory/entry", 
-             params: { 
-               warehouse_id: warehouse.id, 
-               product_id: product.id, 
-               quantity: 10 
+        post "/api/inventory/entry",
+             params: {
+               warehouse_id: warehouse.id,
+               product_id: product.id,
+               quantity: 10
              },
              headers: auth_headers(user)
 
         expect(response).to have_http_status(:ok)
-        
+
         stock = Stock.find_by(warehouse_id: warehouse.id, product_id: product.id)
         expect(stock).to be_present
         expect(stock.quantity).to eq(10)
@@ -65,16 +65,16 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "updates existing stock when entry is made" do
         existing_stock = create(:stock, warehouse: warehouse, product: product, quantity: 50)
 
-        post "/api/inventory/entry", 
-             params: { 
-               warehouse_id: warehouse.id, 
-               product_id: product.id, 
-               quantity: 20 
+        post "/api/inventory/entry",
+             params: {
+               warehouse_id: warehouse.id,
+               product_id: product.id,
+               quantity: 20
              },
              headers: auth_headers(user)
 
         expect(response).to have_http_status(:ok)
-        
+
         existing_stock.reload
         expect(existing_stock.quantity).to eq(70)
       end
@@ -85,16 +85,16 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       let(:warehouse) { create(:warehouse, manager: manager) }
 
       it "creates entry successfully" do
-        post "/api/inventory/entry", 
-             params: { 
-               warehouse_id: warehouse.id, 
-               product_id: product.id, 
-               quantity: 15 
+        post "/api/inventory/entry",
+             params: {
+               warehouse_id: warehouse.id,
+               product_id: product.id,
+               quantity: 15
              },
              headers: auth_headers(manager)
 
         expect(response).to have_http_status(:ok)
-        
+
         stock = Stock.find_by(warehouse_id: warehouse.id, product_id: product.id)
         expect(stock.quantity).to eq(15)
       end
@@ -109,16 +109,16 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       end
 
       it "creates entry successfully" do
-        post "/api/inventory/entry", 
-             params: { 
-               warehouse_id: warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/entry",
+             params: {
+               warehouse_id: warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(worker)
 
         expect(response).to have_http_status(:ok)
-        
+
         stock = Stock.find_by(warehouse_id: warehouse.id, product_id: product.id)
         expect(stock.quantity).to eq(5)
       end
@@ -129,11 +129,11 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       let(:warehouse) { create(:warehouse) }
 
       it "returns unauthorized error" do
-        post "/api/inventory/entry", 
-             params: { 
-               warehouse_id: warehouse.id, 
-               product_id: product.id, 
-               quantity: 10 
+        post "/api/inventory/entry",
+             params: {
+               warehouse_id: warehouse.id,
+               product_id: product.id,
+               quantity: 10
              },
              headers: auth_headers(worker)
 
@@ -154,7 +154,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "creates a stock exit and inventory movement" do
         initial_stock = create(:stock, warehouse: warehouse, product: product, quantity: 50)
 
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 10 },
              headers: auth_headers(user)
 
@@ -173,7 +173,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       end
 
       it "returns error when stock does not exist" do
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 10 },
              headers: auth_headers(user)
 
@@ -185,7 +185,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "returns error when insufficient stock" do
         create(:stock, warehouse: warehouse, product: product, quantity: 5)
 
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 10 },
              headers: auth_headers(user)
 
@@ -202,7 +202,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "creates a stock exit and inventory movement" do
         initial_stock = create(:stock, warehouse: warehouse, product: product, quantity: 30)
 
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 15 },
              headers: auth_headers(manager)
 
@@ -224,7 +224,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "creates a stock exit and inventory movement" do
         initial_stock = create(:stock, warehouse: warehouse, product: product, quantity: 20)
 
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 5 },
              headers: auth_headers(worker)
 
@@ -242,7 +242,7 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "returns unauthorized error" do
         create(:stock, warehouse: warehouse, product: product, quantity: 50)
 
-        post "/api/inventory/exit", 
+        post "/api/inventory/exit",
              params: { warehouse_id: warehouse.id, product_id: product.id, quantity: 10 },
              headers: auth_headers(worker)
 
@@ -262,13 +262,13 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
     context "as plant_manager" do
       it "creates a stock transfer and inventory movement" do
         source_stock = create(:stock, warehouse: source_warehouse, product: product, quantity: 10)
-        
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(user)
 
@@ -303,12 +303,12 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "creates a stock transfer and inventory movement" do
         source_stock = create(:stock, warehouse: source_warehouse, product: product, quantity: 10)
 
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(manager)
 
@@ -348,12 +348,12 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "creates a stock transfer and inventory movement" do
         source_stock = create(:stock, warehouse: source_warehouse, product: product, quantity: 10)
 
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(worker)
 
@@ -388,12 +388,12 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "returns unauthorized error" do
         create(:stock, warehouse: source_warehouse, product: product, quantity: 10)
 
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(worker)
 
@@ -405,12 +405,12 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
 
     context "error cases" do
       it "returns error when source stock does not exist" do
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(user)
 
@@ -422,12 +422,12 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
       it "returns error when insufficient stock" do
         create(:stock, warehouse: source_warehouse, product: product, quantity: 3)
 
-        post "/api/inventory/transfer", 
-             params: { 
-               source_warehouse_id: source_warehouse.id, 
-               destination_warehouse_id: destination_warehouse.id, 
-               product_id: product.id, 
-               quantity: 5 
+        post "/api/inventory/transfer",
+             params: {
+               source_warehouse_id: source_warehouse.id,
+               destination_warehouse_id: destination_warehouse.id,
+               product_id: product.id,
+               quantity: 5
              },
              headers: auth_headers(user)
 
@@ -436,8 +436,6 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
         expect(json_response['errors']).to include("Insufficient stock")
       end
     end
-
-
   end
 
   describe "GET /movement_history" do
@@ -454,9 +452,9 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
 
     it "returns a success response" do
       get "/api/inventory/history/#{product.id}", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['message']).to eq("Success")
       expect(json_response['data']).to be_present
@@ -465,9 +463,9 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
 
     it "returns only movements for the specified product" do
       get "/api/inventory/history/#{product.id}", headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       movements = json_response['data']
       expect(movements.length).to eq(5)
@@ -478,9 +476,9 @@ RSpec.describe "Api::InventoryMovementsControllers", type: :request do
 
     it "returns paginated results" do
       get "/api/inventory/history/#{product.id}", params: { page: 1, per: 2 }, headers: auth_headers(user)
-      
+
       expect(response).to have_http_status(:ok)
-      
+
       json_response = JSON.parse(response.body)
       expect(json_response['data']).to be_present
       expect(json_response['data'].length).to eq(2)

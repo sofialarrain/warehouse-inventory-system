@@ -5,8 +5,7 @@ FactoryBot.define do
     manager { nil }
 
     trait :with_manager do
-      association :manager, factory: :user, traits: [:manager]
+      association :manager, factory: :user, traits: [ :manager ]
     end
   end
 end
-
