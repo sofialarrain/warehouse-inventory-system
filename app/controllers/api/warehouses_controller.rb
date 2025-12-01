@@ -1,10 +1,10 @@
 class Api::WarehousesController < ApplicationController
-    before_action :authenticate_user!
     before_action :set_warehouse, only: [ :show, :update, :destroy, :assign_manager, :unassign_manager, :assign_worker, :unassign_worker ]
     before_action :require_plant_manager, only: [ :create, :update, :destroy, :assign_manager, :unassign_manager, :assign_worker, :unassign_worker ]
 
     def index
-        @warehouses = Warehouse.page(params[:page]).per(10)
+        per_page = params[:per] || 10
+        @warehouses = Warehouse.page(params[:page]).per(per_page)
         render_success(data: @warehouses)
     end
 

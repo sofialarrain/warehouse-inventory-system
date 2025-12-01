@@ -50,6 +50,9 @@ group :development, :test do
 
   # RSpec for Rails
   gem "rspec-rails", "~> 8.0.0"
+
+  # FactoryBot for test data
+  gem "factory_bot_rails", "~> 6.4"
 end
 
 gem "devise", "~> 4.9"

@@ -1,9 +1,7 @@
 class Api::InventoryMovementsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :set_inventory_movement, only: [ :show, :update, :destroy ]
-
     def index
-        @inventory_movements = InventoryMovement.page(params[:page]).per(10)
+        per_page = params[:per] || 10
+        @inventory_movements = InventoryMovement.page(params[:page]).per(per_page)
         render_success(data: @inventory_movements)
     end
 
@@ -17,7 +15,7 @@ class Api::InventoryMovementsController < ApplicationController
             warehouse_id: params[:warehouse_id],
             product_id: params[:product_id]
         )
-        stock.quantity = (stock.quantity || 0) + params[:quantity]
+        stock.quantity = (stock.quantity || 0) + params[:quantity].to_i
         stock.save
 
         create_movement(
@@ -41,12 +39,12 @@ class Api::InventoryMovementsController < ApplicationController
             render_error(errors: ["Stock not found"])
             return
         end
-        if stock.quantity < params[:quantity]
+        if stock.quantity < params[:quantity].to_i
             render_error(errors: ["Insufficient stock"])
             return
         end
 
-        stock.quantity = stock.quantity - params[:quantity]
+        stock.quantity = stock.quantity - params[:quantity].to_i
         stock.save
 
         create_movement(movement_type: :exit, source_warehouse_id: params[:warehouse_id])
@@ -72,19 +70,19 @@ class Api::InventoryMovementsController < ApplicationController
             render_error(errors: ["Stock not found"])
             return
         end
-        if source_stock.quantity < params[:quantity]
+        if source_stock.quantity < params[:quantity].to_i
             render_error(errors: ["Insufficient stock"])
             return
         end
 
-        source_stock.quantity = source_stock.quantity - params[:quantity]
+        source_stock.quantity = source_stock.quantity - params[:quantity].to_i
         source_stock.save
 
         destination_stock = Stock.find_or_initialize_by(
             warehouse_id: params[:destination_warehouse_id],
             product_id: params[:product_id]
         )
-        destination_stock.quantity = destination_stock.quantity + params[:quantity]
+        destination_stock.quantity = (destination_stock.quantity || 0) + params[:quantity].to_i
         destination_stock.save
 
         create_movement(
@@ -96,15 +94,12 @@ class Api::InventoryMovementsController < ApplicationController
 
     def movement_history
         @inventory_movements = InventoryMovement.where(product_id: params[:product_id])
-        @inventory_movements_paginated = @inventory_movements.page(params[:page]).per(10)
+        per_page = params[:per] || 10
+        @inventory_movements_paginated = @inventory_movements.page(params[:page]).per(per_page)
         render_success(data: @inventory_movements_paginated)
     end
 
     private
-
-    def set_inventory_movement
-        @inventory_movement = InventoryMovement.find(params[:id])
-    end
 
     def inventory_movement_params
         params.require(:inventory_movement).permit(:quantity, :movement_type, :source_warehouse_id, :destination_warehouse_id)
@@ -116,7 +111,7 @@ class Api::InventoryMovementsController < ApplicationController
             source_warehouse_id: source_warehouse_id,
             destination_warehouse_id: destination_warehouse_id,
             user: current_user,
-            quantity: params[:quantity],
+            quantity: params[:quantity].to_i,
             movement_type: movement_type
         )
 
@@ -137,7 +132,7 @@ class Api::InventoryMovementsController < ApplicationController
         end
 
         if current_user&.warehouse_worker?
-            warehouse = Warehouse.find(id:warehouse_id)
+            warehouse = Warehouse.find_by(id: warehouse_id)
             return false unless warehouse
             return current_user.assigned_warehouses.include?(warehouse)
         end

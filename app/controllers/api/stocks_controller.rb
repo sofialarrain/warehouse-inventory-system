@@ -1,9 +1,9 @@
 class Api::StocksController < ApplicationController
-    before_action :authenticate_user!
-    before_action :set_stock, only: [ :show, :update, :destroy ]
+    before_action :set_stock, only: [ :show ]
 
     def index
-        @stocks = Stock.page(params[:page]).per(10)
+        per_page = params[:per] || 10
+        @stocks = Stock.page(params[:page]).per(per_page)
         render_success(data: @stocks)
     end
 
@@ -12,14 +12,16 @@ class Api::StocksController < ApplicationController
     end
 
     def by_warehouse
+        per_page = params[:per] || 10
         @stocks = Stock.where(warehouse_id: params[:warehouse_id])
-        @stocks_paginated = @stocks.page(params[:page]).per(10)
+        @stocks_paginated = @stocks.page(params[:page]).per(per_page)
         render_success(data: @stocks_paginated)
     end
 
     def by_product
+        per_page = params[:per] || 10
         @stocks = Stock.where(product_id: params[:product_id])
-        @stocks_paginated = @stocks.page(params[:page]).per(10)
+        @stocks_paginated = @stocks.page(params[:page]).per(per_page)
         render_success(data: @stocks_paginated)
     end
 

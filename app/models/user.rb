@@ -15,7 +15,7 @@ class User < ApplicationRecord
   validates :full_name, presence: true
   validates :role, presence: true
 
-  def on_jwt_dispatch(payload)
+  def on_jwt_dispatch(payload, token)
     payload[:role] = role
     payload[:full_name] = full_name
   end

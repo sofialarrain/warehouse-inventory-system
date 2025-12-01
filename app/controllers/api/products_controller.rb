@@ -1,9 +1,9 @@
 class Api::ProductsController < ApplicationController
-    before_action :authenticate_user!
     before_action :set_product, only: [ :show, :update, :destroy ]
 
     def index
-        @products = Product.page(params[:page]).per(10)
+        per_page = params[:per] || 10
+        @products = Product.page(params[:page]).per(per_page)
         render_success(data: @products)
     end
 
